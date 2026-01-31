@@ -1,14 +1,16 @@
 # Brute Force Shield Documentation
 
-Brute Force Shield is a Craft CMS 5 plugin that protects your control panel from brute force password attacks by tracking failed login attempts per IP address and temporarily blocking access after a configurable threshold is reached.
+Brute Force Shield is a Craft CMS 5 plugin that protects your login forms from brute force password attacks by tracking failed login attempts per IP address and temporarily blocking access after a configurable threshold is reached.
 
 ## How It Works
 
-1. When a user fails to log in to the control panel, the plugin records the attempt along with their IP address
+1. When a user fails to log in (to either the Control Panel or a front-end login form), the plugin records the attempt along with their IP address
 2. If the same IP address exceeds the maximum allowed failed attempts within the configured time window, the IP is blocked
-3. Blocked IPs receive a 403 Forbidden response when attempting to access any control panel page
+3. Blocked IPs receive a 403 Forbidden response when attempting to log in via the Control Panel or front-end forms
 4. After the lockout duration expires, the IP is automatically unblocked
 5. Whitelisted IPs are never blocked, regardless of failed attempts
+
+**Note:** Both Control Panel and front-end login forms are protected by default. Front-end protection can be disabled in the settings if desired.
 
 The plugin is proxy-aware and correctly identifies client IPs behind Cloudflare, load balancers, and reverse proxies by checking headers in this order:
 - `CF-Connecting-IP` (Cloudflare)
@@ -52,6 +54,7 @@ Configure the plugin via **Settings → Brute Force Shield** in the control pane
 | Setting | Default | Type | Description |
 |---------|---------|------|-------------|
 | Enable Protection | `true` | boolean | Enable or disable brute force protection |
+| Protect Front-End Login Forms | `true` | boolean | Block login attempts from blocked IPs on front-end forms (not just CP) |
 | Maximum Failed Attempts | `5` | integer | Number of failed login attempts before blocking |
 | Attempt Window | `900` | integer | Time window in seconds for counting failed attempts (15 min) |
 | Lockout Duration | `86400` | integer | How long to block an IP in seconds (24 hours) |
@@ -87,6 +90,7 @@ For boolean settings (Enable Protection, Enable Notifications, Enable Pushover),
 ```bash
 # Protection settings
 BRUTE_FORCE_ENABLED=true
+BRUTE_FORCE_PROTECT_FRONTEND=true
 BRUTE_FORCE_MAX_ATTEMPTS=3
 BRUTE_FORCE_ATTEMPT_WINDOW=600
 BRUTE_FORCE_LOCKOUT_DURATION=3600
@@ -103,6 +107,7 @@ PUSHOVER_API_TOKEN=your_pushover_api_token_here
 
 2. In the plugin settings (Control Panel → Settings → Brute Force Shield):
    - Set **Enable Protection** to `$BRUTE_FORCE_ENABLED`
+   - Set **Protect Front-End Login Forms** to `$BRUTE_FORCE_PROTECT_FRONTEND`
    - Set **Maximum Failed Attempts** to `$BRUTE_FORCE_MAX_ATTEMPTS`
    - Set **Attempt Window** to `$BRUTE_FORCE_ATTEMPT_WINDOW`
    - Set **Lockout Duration** to `$BRUTE_FORCE_LOCKOUT_DURATION`

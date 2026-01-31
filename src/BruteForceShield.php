@@ -158,7 +158,7 @@ class BruteForceShield extends Plugin
     }
 
     /**
-     * Register handler to block CP access for blocked IPs
+     * Register handler to block login access for blocked IPs (both CP and front-end)
      */
     private function registerCpAccessBlocking(): void
     {
@@ -166,13 +166,28 @@ class BruteForceShield extends Plugin
             \yii\web\Application::class,
             \yii\web\Application::EVENT_BEFORE_ACTION,
             function(ActionEvent $event) {
+                $request = Craft::$app->getRequest();
+
                 // Skip console requests
-                if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+                if ($request->getIsConsoleRequest()) {
                     return;
                 }
 
-                // Only check CP requests
-                if (!Craft::$app->getRequest()->getIsCpRequest()) {
+                $isCpRequest = $request->getIsCpRequest();
+                $settings = $this->getSettings();
+
+                // Check if this is a front-end login attempt (only if setting enabled)
+                $isFrontEndLogin = false;
+                if (!$isCpRequest && $request->getIsPost() && $settings->getProtectFrontEndLoginParsed()) {
+                    // Check if the action parameter targets users/login
+                    $action = $request->getBodyParam('action');
+                    if ($action === 'users/login') {
+                        $isFrontEndLogin = true;
+                    }
+                }
+
+                // Only check CP requests or front-end login attempts
+                if (!$isCpRequest && !$isFrontEndLogin) {
                     return;
                 }
 
@@ -193,7 +208,8 @@ class BruteForceShield extends Plugin
                 }
 
                 // Allow GET requests when not logged in (so they can see the login page)
-                if (!Craft::$app->getRequest()->getIsPost()) {
+                // This applies to both CP and front-end login pages
+                if (!$request->getIsPost()) {
                     return;
                 }
 

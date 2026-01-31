@@ -18,6 +18,18 @@
     value: settings.enabled,
 }) }}
 
+{{ forms.booleanMenuField({
+    label: 'Protect Front-End Login Forms'|t('brute-force-shield'),
+    instructions: 'Block login attempts from blocked IPs on front-end forms, not just the Control Panel.'|t('brute-force-shield'),
+    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_PROTECT_FRONTEND`'|t('brute-force-shield'),
+    id: 'protectFrontEndLogin',
+    name: 'protectFrontEndLogin',
+    yesLabel: 'Enabled'|t('brute-force-shield'),
+    noLabel: 'Disabled'|t('brute-force-shield'),
+    includeEnvVars: true,
+    value: settings.protectFrontEndLogin,
+}) }}
+
 {{ forms.autosuggestField({
     label: 'Maximum Failed Attempts'|t('brute-force-shield'),
     instructions: 'Number of failed login attempts before blocking an IP address.'|t('brute-force-shield'),

@@ -99,6 +99,11 @@ class Settings extends Model
     public string $notifyEmail = '';
 
     /**
+     * Whether to protect front-end login forms (supports $ENV_VAR syntax, enabled by default)
+     */
+    public string|bool $protectFrontEndLogin = true;
+
+    /**
      * Whether Pushover notifications are enabled (supports $ENV_VAR syntax)
      */
     public string|bool $pushoverEnabled = false;
@@ -179,6 +184,15 @@ class Settings extends Model
     }
 
     /**
+     * Get the parsed protect front-end login setting (resolves environment variables)
+     */
+    public function getProtectFrontEndLoginParsed(): bool
+    {
+        $value = App::parseEnv((string)$this->protectFrontEndLogin);
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
      * Get the parsed Pushover enabled setting (resolves environment variables)
      */
     public function getPushoverEnabledParsed(): bool
@@ -219,7 +233,7 @@ class Settings extends Model
     public function defineRules(): array
     {
         return [
-            [['enabled', 'notifyOnBlock', 'pushoverEnabled'], 'safe'], // Allow string or bool
+            [['enabled', 'notifyOnBlock', 'pushoverEnabled', 'protectFrontEndLogin'], 'safe'], // Allow string or bool
             [['maxAttempts', 'attemptWindow', 'lockoutDuration'], 'safe'], // Allow string or int
             [['blockMessage', 'notifyEmail', 'pushoverUserKey', 'pushoverApiToken'], 'string'],
             [['whitelistedIps'], 'each', 'rule' => ['string']],
