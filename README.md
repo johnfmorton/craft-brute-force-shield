@@ -342,5 +342,5 @@ MIT License - see LICENSE file for details.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/johnfmorton/brute-force-shield/issues)
+- **Issues**: [GitHub Issues](https://github.com/johnfmorton/craft-brute-force-shield/issues)
 - **Author**: John F Morton ([supergeekery.com](https://supergeekery.com))
