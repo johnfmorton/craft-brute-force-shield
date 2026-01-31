@@ -1,0 +1,194 @@
+{% import '_includes/forms.twig' as forms %}
+
+<p class="light">{{ 'All settings support Suggested environment variables using the `$ENV_VAR` syntax. For example, set a field to `$MY_VAR` and define the value in your `.env` file.'|t('brute-force-shield') }}</p>
+
+<hr>
+
+<h2>{{ 'Protection Settings'|t('brute-force-shield') }}</h2>
+
+{{ forms.booleanMenuField({
+    label: 'Enable Protection'|t('brute-force-shield'),
+    instructions: 'Enable or disable brute force protection.'|t('brute-force-shield'),
+    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_ENABLED`'|t('brute-force-shield'),
+    id: 'enabled',
+    name: 'enabled',
+    yesLabel: 'Enabled'|t('brute-force-shield'),
+    noLabel: 'Disabled'|t('brute-force-shield'),
+    includeEnvVars: true,
+    value: settings.enabled,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Maximum Failed Attempts'|t('brute-force-shield'),
+    instructions: 'Number of failed login attempts before blocking an IP address.'|t('brute-force-shield'),
+    id: 'maxAttempts',
+    name: 'maxAttempts',
+    value: settings.maxAttempts,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Attempt Window (seconds)'|t('brute-force-shield'),
+    instructions: 'Time window in seconds for counting failed attempts. Default: 900 (15 minutes).'|t('brute-force-shield'),
+    id: 'attemptWindow',
+    name: 'attemptWindow',
+    value: settings.attemptWindow,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Lockout Duration (seconds)'|t('brute-force-shield'),
+    instructions: 'How long to block an IP address in seconds. Default: 86400 (24 hours).'|t('brute-force-shield'),
+    id: 'lockoutDuration',
+    name: 'lockoutDuration',
+    value: settings.lockoutDuration,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Block Message'|t('brute-force-shield'),
+    instructions: 'Message shown to blocked IP addresses.'|t('brute-force-shield'),
+    id: 'blockMessage',
+    name: 'blockMessage',
+    value: settings.blockMessage,
+    suggestEnvVars: true,
+}) }}
+
+{% set whitelistInput %}
+{{ forms.editableTable({
+    id: 'whitelistedIps',
+    name: 'whitelistedIps',
+    minRows: 0,
+    initJs: true,
+    static: false,
+    staticRows: false,
+    allowAdd: true,
+    allowDelete: true,
+    allowReorder: false,
+    addRowLabel: 'Add IP Address'|t('brute-force-shield'),
+    cols: {
+        ip: {
+            heading: 'IP Address'|t('brute-force-shield'),
+            type: 'singleline',
+        }
+    },
+    rows: settings.whitelistedIps|map(ip => {ip: ip}),
+}) }}
+{% endset %}
+
+{{ forms.field({
+    label: 'Whitelisted IP Addresses'|t('brute-force-shield'),
+    instructions: 'IP addresses that should never be blocked. Add one per row.'|t('brute-force-shield'),
+    id: 'whitelistedIps',
+    errors: settings.getErrors('whitelistedIps') ?? []
+}, whitelistInput) }}
+
+<hr>
+
+<h2>{{ 'Notification Settings'|t('brute-force-shield') }}</h2>
+
+{{ forms.booleanMenuField({
+    label: 'Enable Notifications'|t('brute-force-shield'),
+    instructions: 'Send notifications when an IP is blocked.'|t('brute-force-shield'),
+    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_NOTIFY_EMAIL_ON`'|t('brute-force-shield'),
+    id: 'notifyOnBlock',
+    name: 'notifyOnBlock',
+    yesLabel: 'Enabled'|t('brute-force-shield'),
+    noLabel: 'Disabled'|t('brute-force-shield'),
+    includeEnvVars: true,
+    value: settings.notifyOnBlock,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Notification Email'|t('brute-force-shield'),
+    instructions: 'Email address to send block notifications to.'|t('brute-force-shield'),
+    id: 'notifyEmail',
+    name: 'notifyEmail',
+    value: settings.notifyEmail,
+    suggestEnvVars: true,
+}) }}
+
+<hr>
+
+<h3>{{ 'Pushover Notifications'|t('brute-force-shield') }}</h3>
+
+<p class="light">{{ 'Pushover is a service for sending push notifications to mobile devices. Visit <a href="https://pushover.net" target="_blank">pushover.net</a> to create an account.'|t('brute-force-shield')|raw }}</p>
+
+{{ forms.booleanMenuField({
+    label: 'Enable Pushover'|t('brute-force-shield'),
+    instructions: 'Send push notifications via Pushover when an IP is blocked.'|t('brute-force-shield'),
+    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_PUSHOVER_ENABLED`'|t('brute-force-shield'),
+    id: 'pushoverEnabled',
+    name: 'pushoverEnabled',
+    yesLabel: 'Enabled'|t('brute-force-shield'),
+    noLabel: 'Disabled'|t('brute-force-shield'),
+    includeEnvVars: true,
+    value: settings.pushoverEnabled,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Pushover User Key'|t('brute-force-shield'),
+    instructions: 'Your Pushover user key.'|t('brute-force-shield'),
+    id: 'pushoverUserKey',
+    name: 'pushoverUserKey',
+    value: settings.pushoverUserKey,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Pushover API Token'|t('brute-force-shield'),
+    instructions: 'Your Pushover application API token.'|t('brute-force-shield'),
+    id: 'pushoverApiToken',
+    name: 'pushoverApiToken',
+    value: settings.pushoverApiToken,
+    suggestEnvVars: true,
+}) }}
+
+<div class="field">
+    <div class="heading">
+        <label>{{ 'Test Pushover Configuration'|t('brute-force-shield') }}</label>
+        <div class="instructions">
+            <p>{{ 'Send a test notification to verify your Pushover settings are configured correctly. Make sure to save your settings first.'|t('brute-force-shield') }}</p>
+        </div>
+    </div>
+    <div class="input ltr">
+        <button type="button" class="btn" onclick="window.testPushoverNotification(this)">{{ 'Send Test Notification'|t('brute-force-shield') }}</button>
+        <span class="spinner hidden" data-pushover-spinner></span>
+        <div class="hidden" data-pushover-result style="margin-top: 8px;"></div>
+    </div>
+</div>
+
+<script>
+window.testPushoverNotification = function(btn) {
+    const container = btn.parentElement;
+    const spinner = container.querySelector('[data-pushover-spinner]');
+    const result = container.querySelector('[data-pushover-result]');
+
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+    result.classList.add('hidden');
+
+    Craft.sendActionRequest('POST', 'brute-force-shield/blocked-ips/test-pushover')
+        .then(response => {
+            result.classList.remove('hidden');
+            result.textContent = '';
+            const p = document.createElement('p');
+            p.style.color = response.data.success ? '#27ae60' : '#cf1124';
+            p.textContent = response.data.message;
+            result.appendChild(p);
+        })
+        .catch(error => {
+            console.error('Test Pushover request failed:', error);
+            result.classList.remove('hidden');
+            result.textContent = '';
+            const p = document.createElement('p');
+            p.style.color = '#cf1124';
+            p.textContent = error.response?.data?.message || '{{ 'An error occurred while sending the test notification.'|t('brute-force-shield')|e('js') }}';
+            result.appendChild(p);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            spinner.classList.add('hidden');
+        });
+};
+</script>

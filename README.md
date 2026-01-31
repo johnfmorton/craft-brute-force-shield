@@ -1,1 +1,346 @@
-# craft-brute-force-shield
+# Brute Force Shield Documentation
+
+Brute Force Shield is a Craft CMS 5 plugin that protects your control panel from brute force password attacks by tracking failed login attempts per IP address and temporarily blocking access after a configurable threshold is reached.
+
+## How It Works
+
+1. When a user fails to log in to the control panel, the plugin records the attempt along with their IP address
+2. If the same IP address exceeds the maximum allowed failed attempts within the configured time window, the IP is blocked
+3. Blocked IPs receive a 403 Forbidden response when attempting to access any control panel page
+4. After the lockout duration expires, the IP is automatically unblocked
+5. Whitelisted IPs are never blocked, regardless of failed attempts
+
+The plugin is proxy-aware and correctly identifies client IPs behind Cloudflare, load balancers, and reverse proxies by checking headers in this order:
+- `CF-Connecting-IP` (Cloudflare)
+- `X-Forwarded-For` (standard proxy header)
+- `X-Real-IP` (nginx proxy header)
+- `REMOTE_ADDR` (direct connection)
+
+## Installation
+
+The plugin is installed as a local plugin via Composer:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./local-plugins/brute-force-shield"
+        }
+    ],
+    "require": {
+        "johnfmorton/brute-force-shield": "*"
+    }
+}
+```
+
+After adding to `composer.json`, run:
+
+```bash
+composer update
+php craft plugin/install brute-force-shield
+```
+
+## Configuration
+
+Configure the plugin via **Settings → Brute Force Shield** in the control panel.
+
+**All settings support environment variables** using the `$ENV_VAR` syntax. For example, set a field to `$MY_VAR` and define the value in your `.env` file.
+
+### Protection Settings
+
+| Setting | Default | Type | Description |
+|---------|---------|------|-------------|
+| Enable Protection | `true` | boolean | Enable or disable brute force protection |
+| Maximum Failed Attempts | `5` | integer | Number of failed login attempts before blocking |
+| Attempt Window | `900` | integer | Time window in seconds for counting failed attempts (15 min) |
+| Lockout Duration | `86400` | integer | How long to block an IP in seconds (24 hours) |
+| Block Message | (see below) | string | Message displayed to blocked users |
+| Whitelisted IP Addresses | (none) | array | IPs that should never be blocked |
+
+**Default block message**: "Access temporarily blocked due to too many failed login attempts. Please try again later."
+
+### Notification Settings
+
+| Setting | Default | Type | Description |
+|---------|---------|------|-------------|
+| Enable Notifications | `false` | boolean | Send notifications when an IP is blocked |
+| Notification Email | (empty) | string | Email address for block notifications |
+| Enable Pushover | `false` | boolean | Send push notifications via Pushover |
+| Pushover User Key | (empty) | string | Your Pushover user key |
+| Pushover API Token | (empty) | string | Your Pushover application API token |
+
+### Environment Variable Support
+
+All settings support Craft CMS environment variable syntax. In the control panel, enter a value like `$MY_ENV_VAR` and define the actual value in your `.env` file.
+
+#### Boolean Values
+
+For boolean settings (Enable Protection, Enable Notifications, Enable Pushover), use one of:
+- `true`, `1`, `yes`, `on` for enabled
+- `false`, `0`, `no`, `off` for disabled
+- Or an environment variable like `$BRUTE_FORCE_ENABLED`
+
+#### Example Setup
+
+1. In your `.env` file:
+```bash
+# Protection settings
+BRUTE_FORCE_ENABLED=true
+BRUTE_FORCE_MAX_ATTEMPTS=3
+BRUTE_FORCE_ATTEMPT_WINDOW=600
+BRUTE_FORCE_LOCKOUT_DURATION=3600
+
+# Notification settings
+BRUTE_FORCE_NOTIFY=true
+SECURITY_EMAIL=security@example.com
+
+# Pushover credentials
+PUSHOVER_ENABLED=true
+PUSHOVER_USER_KEY=your_pushover_user_key_here
+PUSHOVER_API_TOKEN=your_pushover_api_token_here
+```
+
+2. In the plugin settings (Control Panel → Settings → Brute Force Shield):
+   - Set **Enable Protection** to `$BRUTE_FORCE_ENABLED`
+   - Set **Maximum Failed Attempts** to `$BRUTE_FORCE_MAX_ATTEMPTS`
+   - Set **Attempt Window** to `$BRUTE_FORCE_ATTEMPT_WINDOW`
+   - Set **Lockout Duration** to `$BRUTE_FORCE_LOCKOUT_DURATION`
+   - Set **Enable Notifications** to `$BRUTE_FORCE_NOTIFY`
+   - Set **Notification Email** to `$SECURITY_EMAIL`
+   - Set **Enable Pushover** to `$PUSHOVER_ENABLED`
+   - Set **Pushover User Key** to `$PUSHOVER_USER_KEY`
+   - Set **Pushover API Token** to `$PUSHOVER_API_TOKEN`
+
+This approach keeps sensitive credentials out of your project config and allows different values per environment.
+
+### Common Time Values
+
+| Duration | Seconds |
+|----------|---------|
+| 5 minutes | `300` |
+| 15 minutes | `900` |
+| 30 minutes | `1800` |
+| 1 hour | `3600` |
+| 6 hours | `21600` |
+| 12 hours | `43200` |
+| 24 hours | `86400` |
+| 7 days | `604800` |
+
+## Managing Blocked IPs
+
+The plugin adds a "Brute Force Shield" section to the control panel navigation where you can:
+
+- View all currently blocked IP addresses
+- See when each IP was blocked and when the block expires
+- See the number of failed attempts that triggered the block
+- Manually unblock IP addresses
+- Manually block IP addresses
+
+## Notifications
+
+When enabled, the plugin can send notifications each time an IP is blocked:
+
+### Email Notifications
+
+Requires:
+- `Enable Notifications` set to `true` (or env var resolving to true)
+- Valid email address in `Notification Email` (or environment variable reference)
+- Craft's email settings configured correctly
+
+### Pushover Notifications
+
+[Pushover](https://pushover.net/) is a service for sending push notifications to mobile devices.
+
+Requires:
+- `Enable Notifications` set to `true`
+- `Enable Pushover` set to `true`
+- Valid `Pushover User Key` (from your Pushover account)
+- Valid `Pushover API Token` (create an application in Pushover)
+
+## Whitelisting IPs
+
+Whitelisted IPs are never blocked, even if they exceed the failed attempt threshold. Use this for:
+- Your office IP address
+- Trusted administrator IPs
+- Automated testing systems
+
+Add whitelisted IPs via the Control Panel settings page using the editable table.
+
+## Database Tables
+
+The plugin creates two database tables:
+
+### `bruteforceshield_loginattempts`
+Stores failed login attempts:
+- `ipAddress`: The IP that made the attempt
+- `username`: The username that was tried
+- `userAgent`: The browser/client user agent
+- `dateAttempted`: When the attempt occurred
+
+### `bruteforceshield_blockedips`
+Stores blocked IPs:
+- `ipAddress`: The blocked IP
+- `attemptCount`: Number of failed attempts
+- `reason`: Why the IP was blocked
+- `blockedUntil`: When the block expires
+- `isManual`: Whether this was a manual block
+
+## CLI Commands
+
+The plugin provides Craft CLI commands for managing blocked IPs and cleaning up old records.
+
+### Cleanup Command
+
+Clean up old login attempt records and expired blocks:
+
+```bash
+# Delete records older than 30 days (default)
+php craft brute-force-shield/cleanup
+
+# Delete records older than 7 days
+php craft brute-force-shield/cleanup --days=7
+php craft brute-force-shield/cleanup -d 7
+```
+
+### Block Management Commands
+
+List, add, remove, and check blocked IPs:
+
+```bash
+# List currently blocked IPs
+php craft brute-force-shield/block/list
+
+# Include expired blocks in the list
+php craft brute-force-shield/block/list --all
+php craft brute-force-shield/block/list -a
+
+# Block an IP address manually
+php craft brute-force-shield/block/add 192.168.1.100
+
+# Unblock an IP address
+php craft brute-force-shield/block/remove 192.168.1.100
+
+# Check if an IP is blocked
+php craft brute-force-shield/block/check 192.168.1.100
+```
+
+## Cleanup (Programmatic)
+
+Old login attempt records and expired blocks are not cleaned up automatically. You can trigger cleanup via the Control Panel, CLI commands (see above), or programmatically via the protection service:
+
+```php
+use johnfmorton\bruteforceshield\BruteForceShield;
+
+// Delete records older than 30 days (default)
+BruteForceShield::$plugin->protectionService->cleanup();
+
+// Delete records older than 7 days
+BruteForceShield::$plugin->protectionService->cleanup(7);
+```
+
+### Scheduled Cleanup
+
+To run cleanup automatically, add a cron job to execute the CLI command:
+
+```bash
+# Run daily at 3am (delete records older than 30 days)
+0 3 * * * cd /path/to/project && php craft brute-force-shield/cleanup
+
+# Run weekly, keeping only 7 days of records
+0 3 * * 0 cd /path/to/project && php craft brute-force-shield/cleanup --days=7
+```
+
+## Programmatic Usage
+
+### Check if an IP is blocked
+
+```php
+use johnfmorton\bruteforceshield\BruteForceShield;
+
+$ip = '192.168.1.100';
+$isBlocked = BruteForceShield::$plugin->protectionService->isBlocked($ip);
+```
+
+### Manually block an IP
+
+```php
+use johnfmorton\bruteforceshield\BruteForceShield;
+
+BruteForceShield::$plugin->protectionService->blockIp(
+    '192.168.1.100',       // IP address
+    0,                     // attempt count (0 for manual)
+    'Suspicious activity', // reason
+    true                   // isManual
+);
+```
+
+### Manually unblock an IP
+
+```php
+use johnfmorton\bruteforceshield\BruteForceShield;
+
+BruteForceShield::$plugin->protectionService->unblockIp('192.168.1.100');
+```
+
+### Get all blocked IPs
+
+```php
+use johnfmorton\bruteforceshield\BruteForceShield;
+
+// Get only active blocks
+$blockedIps = BruteForceShield::$plugin->protectionService->getBlockedIps();
+
+// Include expired blocks
+$allBlocks = BruteForceShield::$plugin->protectionService->getBlockedIps(true);
+```
+
+## Troubleshooting
+
+### I'm locked out of my own site
+
+If you've accidentally blocked yourself:
+
+1. **Via CLI**: `php craft brute-force-shield/block/remove YOUR_IP_ADDRESS`
+2. **Via database**: Delete your IP from the `bruteforceshield_blockedips` table
+3. **Disable plugin**: Rename the plugin folder temporarily to disable it
+
+### Blocks aren't working behind a proxy
+
+Ensure your proxy is sending the correct headers:
+- For Cloudflare: The `CF-Connecting-IP` header should be present
+- For nginx: Configure `proxy_set_header X-Real-IP $remote_addr;`
+- For load balancers: Ensure `X-Forwarded-For` is being passed
+
+### Notifications aren't sending
+
+1. **Email**: Verify Craft's email settings are configured and working
+2. **Pushover**: Verify your user key and API token are correct (check for typos in env var names)
+3. Check the Craft logs for error messages
+
+### Environment variables not working
+
+1. Ensure the `.env` file is in the project root
+2. Check that the variable name in settings matches exactly (case-sensitive)
+3. Verify the `.env` file is being loaded (check other Craft env vars work)
+4. Clear Craft's caches after changing `.env` values
+
+## Security Recommendations
+
+1. **Set reasonable thresholds**: 3-5 attempts is usually sufficient
+2. **Use shorter attempt windows**: 5-15 minutes catches rapid attacks
+3. **Enable notifications**: Be aware of attacks as they happen
+4. **Whitelist carefully**: Only whitelist static, trusted IPs
+5. **Monitor logs**: Review blocked IPs periodically for patterns
+6. **Combine with other security**: Use strong passwords, 2FA, and keep Craft updated
+7. **Use environment variables**: Keep sensitive credentials like Pushover keys out of project config
+8. **Schedule regular cleanup**: Set up a cron job to periodically clean up old login attempts and expired blocks to keep database tables lean (see [Scheduled Cleanup](#scheduled-cleanup))
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/johnfmorton/brute-force-shield/issues)
+- **Author**: John F Morton ([supergeekery.com](https://supergeekery.com))

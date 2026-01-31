@@ -1,0 +1,98 @@
+{% extends '_layouts/cp' %}
+{% import '_includes/forms.twig' as forms %}
+
+{% set title = 'Blocked IPs'|t('brute-force-shield') %}
+{% set fullPageForm = false %}
+
+{% block content %}
+    <div class="pane">
+        <h2>{{ 'Manually Block IP'|t('brute-force-shield') }}</h2>
+        <form method="post" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            {{ actionInput('brute-force-shield/blocked-ips/block') }}
+            {{ redirectInput('brute-force-shield') }}
+
+            <div class="flex">
+                <div class="flex-grow">
+                    {{ forms.textField({
+                        id: 'ipAddress',
+                        name: 'ipAddress',
+                        placeholder: 'Enter IP address'|t('brute-force-shield'),
+                        required: true,
+                    }) }}
+                </div>
+                <div>
+                    <button type="submit" class="btn submit">{{ 'Block IP'|t('brute-force-shield') }}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="pane" style="margin-top: 24px;">
+        <h2>{{ 'Currently Blocked IPs'|t('brute-force-shield') }}</h2>
+
+        {% if blockedIps|length %}
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ 'IP Address'|t('brute-force-shield') }}</th>
+                        <th>{{ 'Reason'|t('brute-force-shield') }}</th>
+                        <th>{{ 'Attempts'|t('brute-force-shield') }}</th>
+                        <th>{{ 'Blocked Until'|t('brute-force-shield') }}</th>
+                        <th>{{ 'Type'|t('brute-force-shield') }}</th>
+                        <th>{{ 'Actions'|t('brute-force-shield') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ip in blockedIps %}
+                        {% set isExpired = ip.blockedUntil < now|date('Y-m-d H:i:s') %}
+                        <tr{% if isExpired %} class="disabled"{% endif %}>
+                            <td>
+                                <strong>{{ ip.ipAddress }}</strong>
+                                {% if isExpired %}
+                                    <span class="status off" title="{{ 'Expired'|t('brute-force-shield') }}"></span>
+                                {% else %}
+                                    <span class="status live" title="{{ 'Active'|t('brute-force-shield') }}"></span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ip.reason ?? 'N/A' }}</td>
+                            <td>{{ ip.attemptCount }}</td>
+                            <td>{{ ip.blockedUntil|date('M j, Y g:i A') }}</td>
+                            <td>
+                                {% if ip.isManual %}
+                                    <span class="status" style="background-color: #6366f1;"></span>
+                                    {{ 'Manual'|t('brute-force-shield') }}
+                                {% else %}
+                                    <span class="status" style="background-color: #f59e0b;"></span>
+                                    {{ 'Automatic'|t('brute-force-shield') }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" accept-charset="UTF-8" style="display: inline;">
+                                    {{ csrfInput() }}
+                                    {{ actionInput('brute-force-shield/blocked-ips/unblock') }}
+                                    {{ redirectInput('brute-force-shield') }}
+                                    {{ hiddenInput('id', ip.id) }}
+                                    <button type="submit" class="btn small">{{ 'Unblock'|t('brute-force-shield') }}</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="zilch">{{ 'No blocked IP addresses.'|t('brute-force-shield') }}</p>
+        {% endif %}
+    </div>
+
+    <div class="pane" style="margin-top: 24px;">
+        <h2>{{ 'Maintenance'|t('brute-force-shield') }}</h2>
+        <p>{{ 'Clean up old login attempt records and expired blocks.'|t('brute-force-shield') }}</p>
+        <form method="post" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            {{ actionInput('brute-force-shield/blocked-ips/cleanup') }}
+            {{ redirectInput('brute-force-shield') }}
+            <button type="submit" class="btn">{{ 'Clean Up Old Records'|t('brute-force-shield') }}</button>
+        </form>
+    </div>
+{% endblock %}
