@@ -20,28 +20,19 @@ The plugin is proxy-aware and correctly identifies client IPs behind Cloudflare,
 
 ## Installation
 
-The plugin is installed as a local plugin via Composer:
-
-```json
-{
-    "repositories": [
-        {
-            "type": "path",
-            "url": "./local-plugins/login-lockdown"
-        }
-    ],
-    "require": {
-        "johnfmorton/login-lockdown": "*"
-    }
-}
-```
-
-After adding to `composer.json`, run:
+Install via Composer:
 
 ```bash
-composer update
+composer require johnfmorton/login-lockdown
+```
+
+Then install the plugin in Craft:
+
+```bash
 php craft plugin/install login-lockdown
 ```
+
+Or install via the Control Panel under **Settings → Plugins**.
 
 ## Configuration
 
@@ -347,5 +338,5 @@ MIT License - see LICENSE file for details.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/johnfmorton/login-lockdown/issues)
+- **Issues**: [GitHub Issues](https://github.com/johnfmorton/craft-login-lockdown/issues)
 - **Author**: John F Morton ([supergeekery.com](https://supergeekery.com))
