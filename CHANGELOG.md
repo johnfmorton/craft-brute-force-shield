@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-02-02
+
+### Fixed
+
+- Corrected GitHub repository URLs in composer.json documentation and support links
+
 ## [1.0.1] - 2026-02-02
 
 ### Added
@@ -30,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Proxy-aware IP detection (Cloudflare, X-Forwarded-For, X-Real-IP)
 - Environment variable support for all settings using `$ENV_VAR` syntax
 
-[Unreleased]: https://github.com/johnfmorton/login-lockdown/compare/v1.0.1...HEAD
-[1.0.1]: https://github.com/johnfmorton/login-lockdown/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/johnfmorton/login-lockdown/releases/tag/v1.0.0
+[Unreleased]: https://github.com/johnfmorton/craft-login-lockdown/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/johnfmorton/craft-login-lockdown/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/johnfmorton/craft-login-lockdown/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/johnfmorton/craft-login-lockdown/releases/tag/v1.0.0
