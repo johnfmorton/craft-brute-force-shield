@@ -1,6 +1,6 @@
-# Brute Force Shield Documentation
+# Login Lockdown Documentation
 
-Brute Force Shield is a Craft CMS 5 plugin that protects your login forms from brute force password attacks by tracking failed login attempts per IP address and temporarily blocking access after a configurable threshold is reached.
+Login Lockdown is a Craft CMS 5 plugin that protects your login forms from brute force password attacks by tracking failed login attempts per IP address and temporarily blocking access after a configurable threshold is reached.
 
 ## How It Works
 
@@ -27,11 +27,11 @@ The plugin is installed as a local plugin via Composer:
     "repositories": [
         {
             "type": "path",
-            "url": "./local-plugins/brute-force-shield"
+            "url": "./local-plugins/login-lockdown"
         }
     ],
     "require": {
-        "johnfmorton/brute-force-shield": "*"
+        "johnfmorton/login-lockdown": "*"
     }
 }
 ```
@@ -40,12 +40,12 @@ After adding to `composer.json`, run:
 
 ```bash
 composer update
-php craft plugin/install brute-force-shield
+php craft plugin/install login-lockdown
 ```
 
 ## Configuration
 
-Configure the plugin via **Settings → Brute Force Shield** in the control panel.
+Configure the plugin via **Settings → Login Lockdown** in the control panel.
 
 **All settings support environment variables** using the `$ENV_VAR` syntax. For example, set a field to `$MY_VAR` and define the value in your `.env` file.
 
@@ -82,21 +82,21 @@ All settings support Craft CMS environment variable syntax. In the control panel
 For boolean settings (Enable Protection, Enable Notifications, Enable Pushover), use one of:
 - `true`, `1`, `yes`, `on` for enabled
 - `false`, `0`, `no`, `off` for disabled
-- Or an environment variable like `$BRUTE_FORCE_ENABLED`
+- Or an environment variable like `$LOGIN_LOCKDOWN_ENABLED`
 
 #### Example Setup
 
 1. In your `.env` file:
 ```bash
 # Protection settings
-BRUTE_FORCE_ENABLED=true
-BRUTE_FORCE_PROTECT_FRONTEND=true
-BRUTE_FORCE_MAX_ATTEMPTS=3
-BRUTE_FORCE_ATTEMPT_WINDOW=600
-BRUTE_FORCE_LOCKOUT_DURATION=3600
+LOGIN_LOCKDOWN_ENABLED=true
+LOGIN_LOCKDOWN_PROTECT_FRONTEND=true
+LOGIN_LOCKDOWN_MAX_ATTEMPTS=3
+LOGIN_LOCKDOWN_ATTEMPT_WINDOW=600
+LOGIN_LOCKDOWN_LOCKOUT_DURATION=3600
 
 # Notification settings
-BRUTE_FORCE_NOTIFY=true
+LOGIN_LOCKDOWN_NOTIFY=true
 SECURITY_EMAIL=security@example.com
 
 # Pushover credentials
@@ -105,13 +105,13 @@ PUSHOVER_USER_KEY=your_pushover_user_key_here
 PUSHOVER_API_TOKEN=your_pushover_api_token_here
 ```
 
-2. In the plugin settings (Control Panel → Settings → Brute Force Shield):
-   - Set **Enable Protection** to `$BRUTE_FORCE_ENABLED`
-   - Set **Protect Front-End Login Forms** to `$BRUTE_FORCE_PROTECT_FRONTEND`
-   - Set **Maximum Failed Attempts** to `$BRUTE_FORCE_MAX_ATTEMPTS`
-   - Set **Attempt Window** to `$BRUTE_FORCE_ATTEMPT_WINDOW`
-   - Set **Lockout Duration** to `$BRUTE_FORCE_LOCKOUT_DURATION`
-   - Set **Enable Notifications** to `$BRUTE_FORCE_NOTIFY`
+2. In the plugin settings (Control Panel → Settings → Login Lockdown):
+   - Set **Enable Protection** to `$LOGIN_LOCKDOWN_ENABLED`
+   - Set **Protect Front-End Login Forms** to `$LOGIN_LOCKDOWN_PROTECT_FRONTEND`
+   - Set **Maximum Failed Attempts** to `$LOGIN_LOCKDOWN_MAX_ATTEMPTS`
+   - Set **Attempt Window** to `$LOGIN_LOCKDOWN_ATTEMPT_WINDOW`
+   - Set **Lockout Duration** to `$LOGIN_LOCKDOWN_LOCKOUT_DURATION`
+   - Set **Enable Notifications** to `$LOGIN_LOCKDOWN_NOTIFY`
    - Set **Notification Email** to `$SECURITY_EMAIL`
    - Set **Enable Pushover** to `$PUSHOVER_ENABLED`
    - Set **Pushover User Key** to `$PUSHOVER_USER_KEY`
@@ -134,7 +134,7 @@ This approach keeps sensitive credentials out of your project config and allows 
 
 ## Managing Blocked IPs
 
-The plugin adds a "Brute Force Shield" section to the control panel navigation where you can:
+The plugin adds a "Login Lockdown" section to the control panel navigation where you can:
 
 - View all currently blocked IP addresses
 - See when each IP was blocked and when the block expires
@@ -176,14 +176,14 @@ Add whitelisted IPs via the Control Panel settings page using the editable table
 
 The plugin creates two database tables:
 
-### `bruteforceshield_loginattempts`
+### `loginlockdown_login_attempts`
 Stores failed login attempts:
 - `ipAddress`: The IP that made the attempt
 - `username`: The username that was tried
 - `userAgent`: The browser/client user agent
 - `dateAttempted`: When the attempt occurred
 
-### `bruteforceshield_blockedips`
+### `loginlockdown_blocked_ips`
 Stores blocked IPs:
 - `ipAddress`: The blocked IP
 - `attemptCount`: Number of failed attempts
@@ -201,11 +201,11 @@ Clean up old login attempt records and expired blocks:
 
 ```bash
 # Delete records older than 30 days (default)
-php craft brute-force-shield/cleanup
+php craft login-lockdown/cleanup
 
 # Delete records older than 7 days
-php craft brute-force-shield/cleanup --days=7
-php craft brute-force-shield/cleanup -d 7
+php craft login-lockdown/cleanup --days=7
+php craft login-lockdown/cleanup -d 7
 ```
 
 ### Block Management Commands
@@ -214,20 +214,20 @@ List, add, remove, and check blocked IPs:
 
 ```bash
 # List currently blocked IPs
-php craft brute-force-shield/block/list
+php craft login-lockdown/block/list
 
 # Include expired blocks in the list
-php craft brute-force-shield/block/list --all
-php craft brute-force-shield/block/list -a
+php craft login-lockdown/block/list --all
+php craft login-lockdown/block/list -a
 
 # Block an IP address manually
-php craft brute-force-shield/block/add 192.168.1.100
+php craft login-lockdown/block/add 192.168.1.100
 
 # Unblock an IP address
-php craft brute-force-shield/block/remove 192.168.1.100
+php craft login-lockdown/block/remove 192.168.1.100
 
 # Check if an IP is blocked
-php craft brute-force-shield/block/check 192.168.1.100
+php craft login-lockdown/block/check 192.168.1.100
 ```
 
 ## Cleanup (Programmatic)
@@ -235,13 +235,13 @@ php craft brute-force-shield/block/check 192.168.1.100
 Old login attempt records and expired blocks are not cleaned up automatically. You can trigger cleanup via the Control Panel, CLI commands (see above), or programmatically via the protection service:
 
 ```php
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 
 // Delete records older than 30 days (default)
-BruteForceShield::$plugin->protectionService->cleanup();
+LoginLockdown::$plugin->protectionService->cleanup();
 
 // Delete records older than 7 days
-BruteForceShield::$plugin->protectionService->cleanup(7);
+LoginLockdown::$plugin->protectionService->cleanup(7);
 ```
 
 ### Scheduled Cleanup
@@ -250,10 +250,10 @@ To run cleanup automatically, add a cron job to execute the CLI command:
 
 ```bash
 # Run daily at 3am (delete records older than 30 days)
-0 3 * * * cd /path/to/project && php craft brute-force-shield/cleanup
+0 3 * * * cd /path/to/project && php craft login-lockdown/cleanup
 
 # Run weekly, keeping only 7 days of records
-0 3 * * 0 cd /path/to/project && php craft brute-force-shield/cleanup --days=7
+0 3 * * 0 cd /path/to/project && php craft login-lockdown/cleanup --days=7
 ```
 
 ## Programmatic Usage
@@ -261,18 +261,18 @@ To run cleanup automatically, add a cron job to execute the CLI command:
 ### Check if an IP is blocked
 
 ```php
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 
 $ip = '192.168.1.100';
-$isBlocked = BruteForceShield::$plugin->protectionService->isBlocked($ip);
+$isBlocked = LoginLockdown::$plugin->protectionService->isBlocked($ip);
 ```
 
 ### Manually block an IP
 
 ```php
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 
-BruteForceShield::$plugin->protectionService->blockIp(
+LoginLockdown::$plugin->protectionService->blockIp(
     '192.168.1.100',       // IP address
     0,                     // attempt count (0 for manual)
     'Suspicious activity', // reason
@@ -283,21 +283,21 @@ BruteForceShield::$plugin->protectionService->blockIp(
 ### Manually unblock an IP
 
 ```php
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 
-BruteForceShield::$plugin->protectionService->unblockIp('192.168.1.100');
+LoginLockdown::$plugin->protectionService->unblockIp('192.168.1.100');
 ```
 
 ### Get all blocked IPs
 
 ```php
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 
 // Get only active blocks
-$blockedIps = BruteForceShield::$plugin->protectionService->getBlockedIps();
+$blockedIps = LoginLockdown::$plugin->protectionService->getBlockedIps();
 
 // Include expired blocks
-$allBlocks = BruteForceShield::$plugin->protectionService->getBlockedIps(true);
+$allBlocks = LoginLockdown::$plugin->protectionService->getBlockedIps(true);
 ```
 
 ## Troubleshooting
@@ -306,8 +306,8 @@ $allBlocks = BruteForceShield::$plugin->protectionService->getBlockedIps(true);
 
 If you've accidentally blocked yourself:
 
-1. **Via CLI**: `php craft brute-force-shield/block/remove YOUR_IP_ADDRESS`
-2. **Via database**: Delete your IP from the `bruteforceshield_blockedips` table
+1. **Via CLI**: `php craft login-lockdown/block/remove YOUR_IP_ADDRESS`
+2. **Via database**: Delete your IP from the `loginlockdown_blocked_ips` table
 3. **Disable plugin**: Rename the plugin folder temporarily to disable it
 
 ### Blocks aren't working behind a proxy
@@ -347,5 +347,5 @@ MIT License - see LICENSE file for details.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/johnfmorton/craft-brute-force-shield/issues)
+- **Issues**: [GitHub Issues](https://github.com/johnfmorton/login-lockdown/issues)
 - **Author**: John F Morton ([supergeekery.com](https://supergeekery.com))

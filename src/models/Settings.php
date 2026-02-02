@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,13 +8,13 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\models;
+namespace johnfmorton\loginlockdown\models;
 
 use craft\base\Model;
 use craft\helpers\App;
 
 /**
- * Brute Force Shield Settings Model
+ * Login Lockdown Settings Model
  *
  * All settings support environment variable references using the $ENV_VAR syntax.
  * For example, you can set the Pushover API Token to "$PUSHOVER_API_TOKEN" in the
@@ -23,7 +23,7 @@ use craft\helpers\App;
  * Use the getParsed*() methods to get resolved values.
  *
  * @author    John F Morton
- * @package   BruteForceShield
+ * @package   LoginLockdown
  * @since     1.0.0
  */
 class Settings extends Model

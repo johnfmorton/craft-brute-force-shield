@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\services;
+namespace johnfmorton\loginlockdown\services;
 
 use Craft;
 use craft\base\Component;
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 
 /**
  * Notification Service
@@ -20,7 +20,7 @@ use johnfmorton\bruteforceshield\BruteForceShield;
  * Handles email and Pushover notifications when IPs are blocked.
  *
  * @author    John F Morton
- * @package   BruteForceShield
+ * @package   LoginLockdown
  * @since     1.0.0
  */
 class NotificationService extends Component
@@ -34,7 +34,7 @@ class NotificationService extends Component
      */
     public function sendBlockNotification(string $ipAddress, int $attemptCount, ?string $username = null): void
     {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
 
         if (!$settings->getNotifyOnBlockParsed()) {
             return;
@@ -71,7 +71,7 @@ class NotificationService extends Component
         ?string $username,
         string $siteName,
     ): string {
-        $message = "Brute Force Shield has blocked IP address {$ipAddress} on {$siteName}.\n\n";
+        $message = "Login Lockdown has blocked IP address {$ipAddress} on {$siteName}.\n\n";
         $message .= "Details:\n";
         $message .= "- Failed attempts: {$attemptCount}\n";
 
@@ -93,13 +93,13 @@ class NotificationService extends Component
             Craft::$app->getMailer()
                 ->compose()
                 ->setTo($email)
-                ->setSubject("[{$siteName}] Brute Force Shield - IP Blocked")
+                ->setSubject("[{$siteName}] Login Lockdown - IP Blocked")
                 ->setTextBody($message)
                 ->send();
 
-            Craft::info("Brute Force Shield: Email notification sent to {$email}", __METHOD__);
+            Craft::info("Login Lockdown: Email notification sent to {$email}", __METHOD__);
         } catch (\Throwable $e) {
-            Craft::error("Brute Force Shield: Failed to send email notification: " . $e->getMessage(), __METHOD__);
+            Craft::error("Login Lockdown: Failed to send email notification: " . $e->getMessage(), __METHOD__);
         }
     }
 
@@ -110,15 +110,15 @@ class NotificationService extends Component
      */
     public function sendTestPushoverNotification(): array
     {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
 
-        Craft::info('Brute Force Shield: Test Pushover - pushoverEnabled raw: ' . var_export($settings->pushoverEnabled, true), __METHOD__);
-        Craft::info('Brute Force Shield: Test Pushover - pushoverEnabled parsed: ' . var_export($settings->getPushoverEnabledParsed(), true), __METHOD__);
+        Craft::info('Login Lockdown: Test Pushover - pushoverEnabled raw: ' . var_export($settings->pushoverEnabled, true), __METHOD__);
+        Craft::info('Login Lockdown: Test Pushover - pushoverEnabled parsed: ' . var_export($settings->getPushoverEnabledParsed(), true), __METHOD__);
 
         if (!$settings->getPushoverEnabledParsed()) {
             return [
                 'success' => false,
-                'message' => Craft::t('brute-force-shield', 'Pushover notifications are not enabled.'),
+                'message' => Craft::t('login-lockdown', 'Pushover notifications are not enabled.'),
             ];
         }
 
@@ -128,14 +128,14 @@ class NotificationService extends Component
         if (empty($userKey) || empty($apiToken)) {
             return [
                 'success' => false,
-                'message' => Craft::t('brute-force-shield', 'Pushover User Key and API Token are required.'),
+                'message' => Craft::t('login-lockdown', 'Pushover User Key and API Token are required.'),
             ];
         }
 
         $siteName = Craft::$app->getSystemName();
         $message = Craft::t(
-            'brute-force-shield',
-            'This is a test notification from Brute Force Shield on {siteName}. Your Pushover configuration is working correctly!',
+            'login-lockdown',
+            'This is a test notification from Login Lockdown on {siteName}. Your Pushover configuration is working correctly!',
             ['siteName' => $siteName]
         );
 
@@ -145,7 +145,7 @@ class NotificationService extends Component
             if ($ch === false) {
                 return [
                     'success' => false,
-                    'message' => Craft::t('brute-force-shield', 'Failed to initialize cURL.'),
+                    'message' => Craft::t('login-lockdown', 'Failed to initialize cURL.'),
                 ];
             }
 
@@ -155,7 +155,7 @@ class NotificationService extends Component
                     'token' => $apiToken,
                     'user' => $userKey,
                     'message' => $message,
-                    'title' => Craft::t('brute-force-shield', 'Brute Force Shield Test - {siteName}', ['siteName' => $siteName]),
+                    'title' => Craft::t('login-lockdown', 'Login Lockdown Test - {siteName}', ['siteName' => $siteName]),
                     'priority' => 0,
                 ],
                 CURLOPT_RETURNTRANSFER => true,
@@ -167,10 +167,10 @@ class NotificationService extends Component
             curl_close($ch);
 
             if ($httpCode === 200) {
-                Craft::info('Brute Force Shield: Test Pushover notification sent successfully', __METHOD__);
+                Craft::info('Login Lockdown: Test Pushover notification sent successfully', __METHOD__);
                 return [
                     'success' => true,
-                    'message' => Craft::t('brute-force-shield', 'Test notification sent successfully!'),
+                    'message' => Craft::t('login-lockdown', 'Test notification sent successfully!'),
                 ];
             }
 
@@ -182,16 +182,16 @@ class NotificationService extends Component
                 }
             }
 
-            Craft::error("Brute Force Shield: Test Pushover notification failed with HTTP {$httpCode}: {$response}", __METHOD__);
+            Craft::error("Login Lockdown: Test Pushover notification failed with HTTP {$httpCode}: {$response}", __METHOD__);
             return [
                 'success' => false,
-                'message' => Craft::t('brute-force-shield', 'Pushover API error: {error}', ['error' => $errorMessage]),
+                'message' => Craft::t('login-lockdown', 'Pushover API error: {error}', ['error' => $errorMessage]),
             ];
         } catch (\Throwable $e) {
-            Craft::error("Brute Force Shield: Failed to send test Pushover notification: " . $e->getMessage(), __METHOD__);
+            Craft::error("Login Lockdown: Failed to send test Pushover notification: " . $e->getMessage(), __METHOD__);
             return [
                 'success' => false,
-                'message' => Craft::t('brute-force-shield', 'Error: {error}', ['error' => $e->getMessage()]),
+                'message' => Craft::t('login-lockdown', 'Error: {error}', ['error' => $e->getMessage()]),
             ];
         }
     }
@@ -209,7 +209,7 @@ class NotificationService extends Component
             $ch = curl_init('https://api.pushover.net/1/messages.json');
 
             if ($ch === false) {
-                Craft::error('Brute Force Shield: Failed to initialize cURL for Pushover', __METHOD__);
+                Craft::error('Login Lockdown: Failed to initialize cURL for Pushover', __METHOD__);
                 return;
             }
 
@@ -219,7 +219,7 @@ class NotificationService extends Component
                     'token' => $apiToken,
                     'user' => $userKey,
                     'message' => $message,
-                    'title' => "Brute Force Shield Alert - {$siteName}",
+                    'title' => "Login Lockdown Alert - {$siteName}",
                     'priority' => 0,
                 ],
                 CURLOPT_RETURNTRANSFER => true,
@@ -231,12 +231,12 @@ class NotificationService extends Component
             curl_close($ch);
 
             if ($httpCode === 200) {
-                Craft::info('Brute Force Shield: Pushover notification sent successfully', __METHOD__);
+                Craft::info('Login Lockdown: Pushover notification sent successfully', __METHOD__);
             } else {
-                Craft::error("Brute Force Shield: Pushover notification failed with HTTP {$httpCode}: {$response}", __METHOD__);
+                Craft::error("Login Lockdown: Pushover notification failed with HTTP {$httpCode}: {$response}", __METHOD__);
             }
         } catch (\Throwable $e) {
-            Craft::error("Brute Force Shield: Failed to send Pushover notification: " . $e->getMessage(), __METHOD__);
+            Craft::error("Login Lockdown: Failed to send Pushover notification: " . $e->getMessage(), __METHOD__);
         }
     }
 }

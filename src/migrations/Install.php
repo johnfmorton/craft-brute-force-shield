@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,18 +8,18 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\migrations;
+namespace johnfmorton\loginlockdown\migrations;
 
 use Craft;
 use craft\db\Migration;
-use johnfmorton\bruteforceshield\records\BlockedIpRecord;
-use johnfmorton\bruteforceshield\records\LoginAttemptRecord;
+use johnfmorton\loginlockdown\records\BlockedIpRecord;
+use johnfmorton\loginlockdown\records\LoginAttemptRecord;
 
 /**
- * Brute Force Shield Install Migration
+ * Login Lockdown Install Migration
  *
  * @author    John F Morton
- * @package   BruteForceShield
+ * @package   LoginLockdown
  * @since     1.0.0
  */
 class Install extends Migration

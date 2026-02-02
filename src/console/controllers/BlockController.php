@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,12 +8,12 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\console\controllers;
+namespace johnfmorton\loginlockdown\console\controllers;
 
 use Craft;
 use craft\console\Controller;
 use craft\helpers\Console;
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 use yii\console\ExitCode;
 
 /**
@@ -59,18 +59,18 @@ class BlockController extends Controller
      * Example usage:
      * ```
      * # List active blocks only
-     * php craft brute-force-shield/block/list
+     * php craft login-lockdown/block/list
      *
      * # Include expired blocks
-     * php craft brute-force-shield/block/list --all
-     * php craft brute-force-shield/block/list -a
+     * php craft login-lockdown/block/list --all
+     * php craft login-lockdown/block/list -a
      * ```
      *
      * @return int
      */
     public function actionList(): int
     {
-        $blockedIps = BruteForceShield::$plugin->protectionService->getBlockedIps($this->all);
+        $blockedIps = LoginLockdown::$plugin->protectionService->getBlockedIps($this->all);
 
         if (empty($blockedIps)) {
             $this->stdout("No blocked IPs found.\n");
@@ -109,7 +109,7 @@ class BlockController extends Controller
      *
      * Example usage:
      * ```
-     * php craft brute-force-shield/block/add 192.168.1.100
+     * php craft login-lockdown/block/add 192.168.1.100
      * ```
      *
      * @param string $ipAddress The IP address to block
@@ -122,7 +122,7 @@ class BlockController extends Controller
             return ExitCode::USAGE;
         }
 
-        BruteForceShield::$plugin->protectionService->blockIp(
+        LoginLockdown::$plugin->protectionService->blockIp(
             $ipAddress,
             0,
             'Blocked via CLI',
@@ -141,7 +141,7 @@ class BlockController extends Controller
      *
      * Example usage:
      * ```
-     * php craft brute-force-shield/block/remove 192.168.1.100
+     * php craft login-lockdown/block/remove 192.168.1.100
      * ```
      *
      * @param string $ipAddress The IP address to unblock
@@ -154,7 +154,7 @@ class BlockController extends Controller
             return ExitCode::USAGE;
         }
 
-        $unblocked = BruteForceShield::$plugin->protectionService->unblockIp($ipAddress);
+        $unblocked = LoginLockdown::$plugin->protectionService->unblockIp($ipAddress);
 
         if ($unblocked) {
             $this->stdout("IP address ");
@@ -172,7 +172,7 @@ class BlockController extends Controller
      *
      * Example usage:
      * ```
-     * php craft brute-force-shield/block/check 192.168.1.100
+     * php craft login-lockdown/block/check 192.168.1.100
      * ```
      *
      * @param string $ipAddress The IP address to check
@@ -185,8 +185,8 @@ class BlockController extends Controller
             return ExitCode::USAGE;
         }
 
-        $isBlocked = BruteForceShield::$plugin->protectionService->isBlocked($ipAddress);
-        $isWhitelisted = BruteForceShield::$plugin->protectionService->isWhitelisted($ipAddress);
+        $isBlocked = LoginLockdown::$plugin->protectionService->isBlocked($ipAddress);
+        $isWhitelisted = LoginLockdown::$plugin->protectionService->isWhitelisted($ipAddress);
 
         $this->stdout("IP: ");
         $this->stdout($ipAddress, Console::FG_YELLOW);

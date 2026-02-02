@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\records;
+namespace johnfmorton\loginlockdown\records;
 
 use craft\db\ActiveRecord;
 
@@ -26,7 +26,7 @@ use craft\db\ActiveRecord;
  * @property string $uid
  *
  * @author    John F Morton
- * @package   BruteForceShield
+ * @package   LoginLockdown
  * @since     1.0.0
  */
 class BlockedIpRecord extends ActiveRecord
@@ -36,6 +36,6 @@ class BlockedIpRecord extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%bruteforceshield_blocked_ips}}';
+        return '{{%loginlockdown_blocked_ips}}';
     }
 }

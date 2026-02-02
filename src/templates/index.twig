@@ -1,46 +1,46 @@
 {% extends '_layouts/cp' %}
 {% import '_includes/forms.twig' as forms %}
 
-{% set title = 'Blocked IPs'|t('brute-force-shield') %}
+{% set title = 'Blocked IPs'|t('login-lockdown') %}
 {% set fullPageForm = false %}
 
 {% block content %}
     <div class="pane">
-        <h2>{{ 'Manually Block IP'|t('brute-force-shield') }}</h2>
+        <h2>{{ 'Manually Block IP'|t('login-lockdown') }}</h2>
         <form method="post" accept-charset="UTF-8">
             {{ csrfInput() }}
-            {{ actionInput('brute-force-shield/blocked-ips/block') }}
-            {{ redirectInput('brute-force-shield') }}
+            {{ actionInput('login-lockdown/blocked-ips/block') }}
+            {{ redirectInput('login-lockdown') }}
 
             <div class="flex">
                 <div class="flex-grow">
                     {{ forms.textField({
                         id: 'ipAddress',
                         name: 'ipAddress',
-                        placeholder: 'Enter IP address'|t('brute-force-shield'),
+                        placeholder: 'Enter IP address'|t('login-lockdown'),
                         required: true,
                     }) }}
                 </div>
                 <div>
-                    <button type="submit" class="btn submit">{{ 'Block IP'|t('brute-force-shield') }}</button>
+                    <button type="submit" class="btn submit">{{ 'Block IP'|t('login-lockdown') }}</button>
                 </div>
             </div>
         </form>
     </div>
 
     <div class="pane" style="margin-top: 24px;">
-        <h2>{{ 'Currently Blocked IPs'|t('brute-force-shield') }}</h2>
+        <h2>{{ 'Currently Blocked IPs'|t('login-lockdown') }}</h2>
 
         {% if blockedIps|length %}
             <table class="data fullwidth">
                 <thead>
                     <tr>
-                        <th>{{ 'IP Address'|t('brute-force-shield') }}</th>
-                        <th>{{ 'Reason'|t('brute-force-shield') }}</th>
-                        <th>{{ 'Attempts'|t('brute-force-shield') }}</th>
-                        <th>{{ 'Blocked Until'|t('brute-force-shield') }}</th>
-                        <th>{{ 'Type'|t('brute-force-shield') }}</th>
-                        <th>{{ 'Actions'|t('brute-force-shield') }}</th>
+                        <th>{{ 'IP Address'|t('login-lockdown') }}</th>
+                        <th>{{ 'Reason'|t('login-lockdown') }}</th>
+                        <th>{{ 'Attempts'|t('login-lockdown') }}</th>
+                        <th>{{ 'Blocked Until'|t('login-lockdown') }}</th>
+                        <th>{{ 'Type'|t('login-lockdown') }}</th>
+                        <th>{{ 'Actions'|t('login-lockdown') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,9 +50,9 @@
                             <td>
                                 <strong>{{ ip.ipAddress }}</strong>
                                 {% if isExpired %}
-                                    <span class="status off" title="{{ 'Expired'|t('brute-force-shield') }}"></span>
+                                    <span class="status off" title="{{ 'Expired'|t('login-lockdown') }}"></span>
                                 {% else %}
-                                    <span class="status live" title="{{ 'Active'|t('brute-force-shield') }}"></span>
+                                    <span class="status live" title="{{ 'Active'|t('login-lockdown') }}"></span>
                                 {% endif %}
                             </td>
                             <td>{{ ip.reason ?? 'N/A' }}</td>
@@ -61,19 +61,19 @@
                             <td>
                                 {% if ip.isManual %}
                                     <span class="status" style="background-color: #6366f1;"></span>
-                                    {{ 'Manual'|t('brute-force-shield') }}
+                                    {{ 'Manual'|t('login-lockdown') }}
                                 {% else %}
                                     <span class="status" style="background-color: #f59e0b;"></span>
-                                    {{ 'Automatic'|t('brute-force-shield') }}
+                                    {{ 'Automatic'|t('login-lockdown') }}
                                 {% endif %}
                             </td>
                             <td>
                                 <form method="post" accept-charset="UTF-8" style="display: inline;">
                                     {{ csrfInput() }}
-                                    {{ actionInput('brute-force-shield/blocked-ips/unblock') }}
-                                    {{ redirectInput('brute-force-shield') }}
+                                    {{ actionInput('login-lockdown/blocked-ips/unblock') }}
+                                    {{ redirectInput('login-lockdown') }}
                                     {{ hiddenInput('id', ip.id) }}
-                                    <button type="submit" class="btn small">{{ 'Unblock'|t('brute-force-shield') }}</button>
+                                    <button type="submit" class="btn small">{{ 'Unblock'|t('login-lockdown') }}</button>
                                 </form>
                             </td>
                         </tr>
@@ -81,18 +81,18 @@
                 </tbody>
             </table>
         {% else %}
-            <p class="zilch">{{ 'No blocked IP addresses.'|t('brute-force-shield') }}</p>
+            <p class="zilch">{{ 'No blocked IP addresses.'|t('login-lockdown') }}</p>
         {% endif %}
     </div>
 
     <div class="pane" style="margin-top: 24px;">
-        <h2>{{ 'Maintenance'|t('brute-force-shield') }}</h2>
-        <p>{{ 'Clean up old login attempt records and expired blocks.'|t('brute-force-shield') }}</p>
+        <h2>{{ 'Maintenance'|t('login-lockdown') }}</h2>
+        <p>{{ 'Clean up old login attempt records and expired blocks.'|t('login-lockdown') }}</p>
         <form method="post" accept-charset="UTF-8">
             {{ csrfInput() }}
-            {{ actionInput('brute-force-shield/blocked-ips/cleanup') }}
-            {{ redirectInput('brute-force-shield') }}
-            <button type="submit" class="btn">{{ 'Clean Up Old Records'|t('brute-force-shield') }}</button>
+            {{ actionInput('login-lockdown/blocked-ips/cleanup') }}
+            {{ redirectInput('login-lockdown') }}
+            <button type="submit" class="btn">{{ 'Clean Up Old Records'|t('login-lockdown') }}</button>
         </form>
     </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\controllers;
+namespace johnfmorton\loginlockdown\controllers;
 
 use Craft;
 use craft\web\Controller;
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 use yii\web\Response;
 
 /**
@@ -21,7 +21,7 @@ use yii\web\Response;
  * Handles the CP interface for managing blocked IPs.
  *
  * @author    John F Morton
- * @package   BruteForceShield
+ * @package   LoginLockdown
  * @since     1.0.0
  */
 class BlockedIpsController extends Controller
@@ -42,9 +42,9 @@ class BlockedIpsController extends Controller
      */
     public function actionIndex(): Response
     {
-        $blockedIps = BruteForceShield::$plugin->protectionService->getBlockedIps(true);
+        $blockedIps = LoginLockdown::$plugin->protectionService->getBlockedIps(true);
 
-        return $this->renderTemplate('brute-force-shield/index', [
+        return $this->renderTemplate('login-lockdown/index', [
             'blockedIps' => $blockedIps,
         ]);
     }
@@ -58,10 +58,10 @@ class BlockedIpsController extends Controller
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (BruteForceShield::$plugin->protectionService->unblockById((int)$id)) {
-            Craft::$app->getSession()->setNotice(Craft::t('brute-force-shield', 'IP address unblocked.'));
+        if (LoginLockdown::$plugin->protectionService->unblockById((int)$id)) {
+            Craft::$app->getSession()->setNotice(Craft::t('login-lockdown', 'IP address unblocked.'));
         } else {
-            Craft::$app->getSession()->setError(Craft::t('brute-force-shield', 'Could not unblock IP address.'));
+            Craft::$app->getSession()->setError(Craft::t('login-lockdown', 'Could not unblock IP address.'));
         }
 
         return $this->redirectToPostedUrl();
@@ -78,18 +78,18 @@ class BlockedIpsController extends Controller
 
         // Validate IP address format
         if (!filter_var($ipAddress, FILTER_VALIDATE_IP)) {
-            Craft::$app->getSession()->setError(Craft::t('brute-force-shield', 'Invalid IP address format.'));
+            Craft::$app->getSession()->setError(Craft::t('login-lockdown', 'Invalid IP address format.'));
             return $this->redirectToPostedUrl();
         }
 
-        BruteForceShield::$plugin->protectionService->blockIp(
+        LoginLockdown::$plugin->protectionService->blockIp(
             $ipAddress,
             0,
             'Manually blocked by admin',
             true
         );
 
-        Craft::$app->getSession()->setNotice(Craft::t('brute-force-shield', 'IP address blocked.'));
+        Craft::$app->getSession()->setNotice(Craft::t('login-lockdown', 'IP address blocked.'));
 
         return $this->redirectToPostedUrl();
     }
@@ -101,10 +101,10 @@ class BlockedIpsController extends Controller
     {
         $this->requirePostRequest();
 
-        $deleted = BruteForceShield::$plugin->protectionService->cleanup();
+        $deleted = LoginLockdown::$plugin->protectionService->cleanup();
 
         Craft::$app->getSession()->setNotice(
-            Craft::t('brute-force-shield', '{count} old records cleaned up.', ['count' => $deleted])
+            Craft::t('login-lockdown', '{count} old records cleaned up.', ['count' => $deleted])
         );
 
         return $this->redirectToPostedUrl();
@@ -118,11 +118,11 @@ class BlockedIpsController extends Controller
         $this->requirePostRequest();
         $this->requireCpRequest();
 
-        Craft::info('Brute Force Shield: Test Pushover action called', __METHOD__);
+        Craft::info('Login Lockdown: Test Pushover action called', __METHOD__);
 
-        $result = BruteForceShield::$plugin->notificationService->sendTestPushoverNotification();
+        $result = LoginLockdown::$plugin->notificationService->sendTestPushoverNotification();
 
-        Craft::info('Brute Force Shield: Test Pushover result: ' . json_encode($result), __METHOD__);
+        Craft::info('Login Lockdown: Test Pushover result: ' . json_encode($result), __METHOD__);
 
         return $this->asJson($result);
     }

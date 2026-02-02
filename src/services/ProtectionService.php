@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,15 +8,15 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\services;
+namespace johnfmorton\loginlockdown\services;
 
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
 use DateTime;
-use johnfmorton\bruteforceshield\BruteForceShield;
-use johnfmorton\bruteforceshield\records\BlockedIpRecord;
-use johnfmorton\bruteforceshield\records\LoginAttemptRecord;
+use johnfmorton\loginlockdown\LoginLockdown;
+use johnfmorton\loginlockdown\records\BlockedIpRecord;
+use johnfmorton\loginlockdown\records\LoginAttemptRecord;
 
 /**
  * Protection Service
@@ -24,7 +24,7 @@ use johnfmorton\bruteforceshield\records\LoginAttemptRecord;
  * Core service for tracking login attempts and managing IP blocks.
  *
  * @author    John F Morton
- * @package   BruteForceShield
+ * @package   LoginLockdown
  * @since     1.0.0
  */
 class ProtectionService extends Component
@@ -39,7 +39,7 @@ class ProtectionService extends Component
      */
     public function recordFailedAttempt(string $ipAddress, ?string $username = null, ?string $userAgent = null): bool
     {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
 
         // Don't record if protection is disabled
         if (!$settings->getEnabledParsed()) {
@@ -59,7 +59,7 @@ class ProtectionService extends Component
         $record->dateAttempted = (new DateTime())->format('Y-m-d H:i:s');
         $record->save();
 
-        Craft::info("Brute Force Shield: Recorded failed login attempt from {$ipAddress}", __METHOD__);
+        Craft::info("Login Lockdown: Recorded failed login attempt from {$ipAddress}", __METHOD__);
 
         // Check if we should block this IP
         return $this->checkAndBlockIfNeeded($ipAddress, $username);
@@ -74,7 +74,7 @@ class ProtectionService extends Component
      */
     private function checkAndBlockIfNeeded(string $ipAddress, ?string $username = null): bool
     {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
 
         // Count recent attempts within the window
         $attemptWindow = $settings->getAttemptWindowParsed();
@@ -94,7 +94,7 @@ class ProtectionService extends Component
             $this->blockIp($ipAddress, $attemptCount, "Exceeded {$maxAttempts} failed login attempts");
 
             // Send notification
-            BruteForceShield::$plugin->notificationService->sendBlockNotification(
+            LoginLockdown::$plugin->notificationService->sendBlockNotification(
                 $ipAddress,
                 $attemptCount,
                 $username
@@ -120,7 +120,7 @@ class ProtectionService extends Component
         string $reason = 'Manual block',
         bool $isManual = false,
     ): void {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
 
         // Check if already blocked
         /** @var BlockedIpRecord|null $existing */
@@ -167,7 +167,7 @@ class ProtectionService extends Component
             }
         }
 
-        Craft::warning("Brute Force Shield: Blocked IP {$ipAddress} - {$reason}", __METHOD__);
+        Craft::warning("Login Lockdown: Blocked IP {$ipAddress} - {$reason}", __METHOD__);
     }
 
     /**
@@ -184,7 +184,7 @@ class ProtectionService extends Component
 
         if ($record) {
             $record->delete();
-            Craft::info("Brute Force Shield: Unblocked IP {$ipAddress}", __METHOD__);
+            Craft::info("Login Lockdown: Unblocked IP {$ipAddress}", __METHOD__);
             return true;
         }
 
@@ -204,7 +204,7 @@ class ProtectionService extends Component
         if ($record) {
             $ipAddress = $record->ipAddress;
             $record->delete();
-            Craft::info("Brute Force Shield: Unblocked IP {$ipAddress}", __METHOD__);
+            Craft::info("Login Lockdown: Unblocked IP {$ipAddress}", __METHOD__);
             return true;
         }
 
@@ -219,7 +219,7 @@ class ProtectionService extends Component
      */
     public function isBlocked(string $ipAddress): bool
     {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
 
         // Not blocked if protection is disabled
         if (!$settings->getEnabledParsed()) {
@@ -249,7 +249,7 @@ class ProtectionService extends Component
      */
     public function isWhitelisted(string $ipAddress): bool
     {
-        $settings = BruteForceShield::$plugin->getSettings();
+        $settings = LoginLockdown::$plugin->getSettings();
         return in_array($ipAddress, $settings->getWhitelistedIps(), true);
     }
 
@@ -344,7 +344,7 @@ class ProtectionService extends Component
             ->execute();
 
         Craft::info(
-            "Brute Force Shield: Cleanup removed {$attemptsDeleted} login attempts and {$blocksDeleted} expired blocks",
+            "Login Lockdown: Cleanup removed {$attemptsDeleted} login attempts and {$blocksDeleted} expired blocks",
             __METHOD__
         );
 

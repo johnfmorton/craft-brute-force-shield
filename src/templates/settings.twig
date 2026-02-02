@@ -1,38 +1,38 @@
 {% import '_includes/forms.twig' as forms %}
 
-<p class="light">{{ 'All settings support Suggested environment variables using the `$ENV_VAR` syntax. For example, set a field to `$MY_VAR` and define the value in your `.env` file.'|t('brute-force-shield') }}</p>
+<p class="light">{{ 'All settings support Suggested environment variables using the `$ENV_VAR` syntax. For example, set a field to `$MY_VAR` and define the value in your `.env` file.'|t('login-lockdown') }}</p>
 
 <hr>
 
-<h2>{{ 'Protection Settings'|t('brute-force-shield') }}</h2>
+<h2>{{ 'Protection Settings'|t('login-lockdown') }}</h2>
 
 {{ forms.booleanMenuField({
-    label: 'Enable Protection'|t('brute-force-shield'),
-    instructions: 'Enable or disable brute force protection.'|t('brute-force-shield'),
-    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_ENABLED`'|t('brute-force-shield'),
+    label: 'Enable Protection'|t('login-lockdown'),
+    instructions: 'Enable or disable brute force protection.'|t('login-lockdown'),
+    tip: 'Suggested environment variable: `LOGIN_LOCKDOWN_ENABLED`'|t('login-lockdown'),
     id: 'enabled',
     name: 'enabled',
-    yesLabel: 'Enabled'|t('brute-force-shield'),
-    noLabel: 'Disabled'|t('brute-force-shield'),
+    yesLabel: 'Enabled'|t('login-lockdown'),
+    noLabel: 'Disabled'|t('login-lockdown'),
     includeEnvVars: true,
     value: settings.enabled,
 }) }}
 
 {{ forms.booleanMenuField({
-    label: 'Protect Front-End Login Forms'|t('brute-force-shield'),
-    instructions: 'Block login attempts from blocked IPs on front-end forms, not just the Control Panel.'|t('brute-force-shield'),
-    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_PROTECT_FRONTEND`'|t('brute-force-shield'),
+    label: 'Protect Front-End Login Forms'|t('login-lockdown'),
+    instructions: 'Block login attempts from blocked IPs on front-end forms, not just the Control Panel.'|t('login-lockdown'),
+    tip: 'Suggested environment variable: `LOGIN_LOCKDOWN_PROTECT_FRONTEND`'|t('login-lockdown'),
     id: 'protectFrontEndLogin',
     name: 'protectFrontEndLogin',
-    yesLabel: 'Enabled'|t('brute-force-shield'),
-    noLabel: 'Disabled'|t('brute-force-shield'),
+    yesLabel: 'Enabled'|t('login-lockdown'),
+    noLabel: 'Disabled'|t('login-lockdown'),
     includeEnvVars: true,
     value: settings.protectFrontEndLogin,
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Maximum Failed Attempts'|t('brute-force-shield'),
-    instructions: 'Number of failed login attempts before blocking an IP address.'|t('brute-force-shield'),
+    label: 'Maximum Failed Attempts'|t('login-lockdown'),
+    instructions: 'Number of failed login attempts before blocking an IP address.'|t('login-lockdown'),
     id: 'maxAttempts',
     name: 'maxAttempts',
     value: settings.maxAttempts,
@@ -40,8 +40,8 @@
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Attempt Window (seconds)'|t('brute-force-shield'),
-    instructions: 'Time window in seconds for counting failed attempts. Default: 900 (15 minutes).'|t('brute-force-shield'),
+    label: 'Attempt Window (seconds)'|t('login-lockdown'),
+    instructions: 'Time window in seconds for counting failed attempts. Default: 900 (15 minutes).'|t('login-lockdown'),
     id: 'attemptWindow',
     name: 'attemptWindow',
     value: settings.attemptWindow,
@@ -49,8 +49,8 @@
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Lockout Duration (seconds)'|t('brute-force-shield'),
-    instructions: 'How long to block an IP address in seconds. Default: 86400 (24 hours).'|t('brute-force-shield'),
+    label: 'Lockout Duration (seconds)'|t('login-lockdown'),
+    instructions: 'How long to block an IP address in seconds. Default: 86400 (24 hours).'|t('login-lockdown'),
     id: 'lockoutDuration',
     name: 'lockoutDuration',
     value: settings.lockoutDuration,
@@ -58,8 +58,8 @@
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Block Message'|t('brute-force-shield'),
-    instructions: 'Message shown to blocked IP addresses.'|t('brute-force-shield'),
+    label: 'Block Message'|t('login-lockdown'),
+    instructions: 'Message shown to blocked IP addresses.'|t('login-lockdown'),
     id: 'blockMessage',
     name: 'blockMessage',
     value: settings.blockMessage,
@@ -77,10 +77,10 @@
     allowAdd: true,
     allowDelete: true,
     allowReorder: false,
-    addRowLabel: 'Add IP Address'|t('brute-force-shield'),
+    addRowLabel: 'Add IP Address'|t('login-lockdown'),
     cols: {
         ip: {
-            heading: 'IP Address'|t('brute-force-shield'),
+            heading: 'IP Address'|t('login-lockdown'),
             type: 'singleline',
         }
     },
@@ -89,31 +89,31 @@
 {% endset %}
 
 {{ forms.field({
-    label: 'Whitelisted IP Addresses'|t('brute-force-shield'),
-    instructions: 'IP addresses that should never be blocked. Add one per row.'|t('brute-force-shield'),
+    label: 'Whitelisted IP Addresses'|t('login-lockdown'),
+    instructions: 'IP addresses that should never be blocked. Add one per row.'|t('login-lockdown'),
     id: 'whitelistedIps',
     errors: settings.getErrors('whitelistedIps') ?? []
 }, whitelistInput) }}
 
 <hr>
 
-<h2>{{ 'Notification Settings'|t('brute-force-shield') }}</h2>
+<h2>{{ 'Notification Settings'|t('login-lockdown') }}</h2>
 
 {{ forms.booleanMenuField({
-    label: 'Enable Notifications'|t('brute-force-shield'),
-    instructions: 'Send notifications when an IP is blocked.'|t('brute-force-shield'),
-    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_NOTIFY_EMAIL_ON`'|t('brute-force-shield'),
+    label: 'Enable Notifications'|t('login-lockdown'),
+    instructions: 'Send notifications when an IP is blocked.'|t('login-lockdown'),
+    tip: 'Suggested environment variable: `LOGIN_LOCKDOWN_NOTIFY_EMAIL_ON`'|t('login-lockdown'),
     id: 'notifyOnBlock',
     name: 'notifyOnBlock',
-    yesLabel: 'Enabled'|t('brute-force-shield'),
-    noLabel: 'Disabled'|t('brute-force-shield'),
+    yesLabel: 'Enabled'|t('login-lockdown'),
+    noLabel: 'Disabled'|t('login-lockdown'),
     includeEnvVars: true,
     value: settings.notifyOnBlock,
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Notification Email'|t('brute-force-shield'),
-    instructions: 'Email address to send block notifications to.'|t('brute-force-shield'),
+    label: 'Notification Email'|t('login-lockdown'),
+    instructions: 'Email address to send block notifications to.'|t('login-lockdown'),
     id: 'notifyEmail',
     name: 'notifyEmail',
     value: settings.notifyEmail,
@@ -122,25 +122,25 @@
 
 <hr>
 
-<h3>{{ 'Pushover Notifications'|t('brute-force-shield') }}</h3>
+<h3>{{ 'Pushover Notifications'|t('login-lockdown') }}</h3>
 
-<p class="light">{{ 'Pushover is a service for sending push notifications to mobile devices. Visit <a href="https://pushover.net" target="_blank">pushover.net</a> to create an account.'|t('brute-force-shield')|raw }}</p>
+<p class="light">{{ 'Pushover is a service for sending push notifications to mobile devices. Visit <a href="https://pushover.net" target="_blank">pushover.net</a> to create an account.'|t('login-lockdown')|raw }}</p>
 
 {{ forms.booleanMenuField({
-    label: 'Enable Pushover'|t('brute-force-shield'),
-    instructions: 'Send push notifications via Pushover when an IP is blocked.'|t('brute-force-shield'),
-    tip: 'Suggested environment variable: `BRUTE_FORCE_SHIELD_PUSHOVER_ENABLED`'|t('brute-force-shield'),
+    label: 'Enable Pushover'|t('login-lockdown'),
+    instructions: 'Send push notifications via Pushover when an IP is blocked.'|t('login-lockdown'),
+    tip: 'Suggested environment variable: `LOGIN_LOCKDOWN_PUSHOVER_ENABLED`'|t('login-lockdown'),
     id: 'pushoverEnabled',
     name: 'pushoverEnabled',
-    yesLabel: 'Enabled'|t('brute-force-shield'),
-    noLabel: 'Disabled'|t('brute-force-shield'),
+    yesLabel: 'Enabled'|t('login-lockdown'),
+    noLabel: 'Disabled'|t('login-lockdown'),
     includeEnvVars: true,
     value: settings.pushoverEnabled,
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Pushover User Key'|t('brute-force-shield'),
-    instructions: 'Your Pushover user key.'|t('brute-force-shield'),
+    label: 'Pushover User Key'|t('login-lockdown'),
+    instructions: 'Your Pushover user key.'|t('login-lockdown'),
     id: 'pushoverUserKey',
     name: 'pushoverUserKey',
     value: settings.pushoverUserKey,
@@ -148,8 +148,8 @@
 }) }}
 
 {{ forms.autosuggestField({
-    label: 'Pushover API Token'|t('brute-force-shield'),
-    instructions: 'Your Pushover application API token.'|t('brute-force-shield'),
+    label: 'Pushover API Token'|t('login-lockdown'),
+    instructions: 'Your Pushover application API token.'|t('login-lockdown'),
     id: 'pushoverApiToken',
     name: 'pushoverApiToken',
     value: settings.pushoverApiToken,
@@ -158,13 +158,13 @@
 
 <div class="field">
     <div class="heading">
-        <label>{{ 'Test Pushover Configuration'|t('brute-force-shield') }}</label>
+        <label>{{ 'Test Pushover Configuration'|t('login-lockdown') }}</label>
         <div class="instructions">
-            <p>{{ 'Send a test notification to verify your Pushover settings are configured correctly. Make sure to save your settings first.'|t('brute-force-shield') }}</p>
+            <p>{{ 'Send a test notification to verify your Pushover settings are configured correctly. Make sure to save your settings first.'|t('login-lockdown') }}</p>
         </div>
     </div>
     <div class="input ltr">
-        <button type="button" class="btn" onclick="window.testPushoverNotification(this)">{{ 'Send Test Notification'|t('brute-force-shield') }}</button>
+        <button type="button" class="btn" onclick="window.testPushoverNotification(this)">{{ 'Send Test Notification'|t('login-lockdown') }}</button>
         <span class="spinner hidden" data-pushover-spinner></span>
         <div class="hidden" data-pushover-result style="margin-top: 8px;"></div>
     </div>
@@ -180,7 +180,7 @@ window.testPushoverNotification = function(btn) {
     spinner.classList.remove('hidden');
     result.classList.add('hidden');
 
-    Craft.sendActionRequest('POST', 'brute-force-shield/blocked-ips/test-pushover')
+    Craft.sendActionRequest('POST', 'login-lockdown/blocked-ips/test-pushover')
         .then(response => {
             result.classList.remove('hidden');
             result.textContent = '';
@@ -195,7 +195,7 @@ window.testPushoverNotification = function(btn) {
             result.textContent = '';
             const p = document.createElement('p');
             p.style.color = '#cf1124';
-            p.textContent = error.response?.data?.message || '{{ 'An error occurred while sending the test notification.'|t('brute-force-shield')|e('js') }}';
+            p.textContent = error.response?.data?.message || '{{ 'An error occurred while sending the test notification.'|t('login-lockdown')|e('js') }}';
             result.appendChild(p);
         })
         .finally(() => {

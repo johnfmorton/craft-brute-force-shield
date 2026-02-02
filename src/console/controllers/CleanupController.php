@@ -1,6 +1,6 @@
 <?php
 /**
- * Brute Force Shield plugin for Craft CMS 5.x
+ * Login Lockdown plugin for Craft CMS 5.x
  *
  * @link      https://supergeekery.com
  * @copyright Copyright (c) 2024 John F Morton
@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace johnfmorton\bruteforceshield\console\controllers;
+namespace johnfmorton\loginlockdown\console\controllers;
 
 use Craft;
 use craft\console\Controller;
-use johnfmorton\bruteforceshield\BruteForceShield;
+use johnfmorton\loginlockdown\LoginLockdown;
 use yii\console\ExitCode;
 
 /**
@@ -55,20 +55,20 @@ class CleanupController extends Controller
      * Example usage:
      * ```
      * # Delete records older than 30 days (default)
-     * php craft brute-force-shield/cleanup
+     * php craft login-lockdown/cleanup
      *
      * # Delete records older than 7 days
-     * php craft brute-force-shield/cleanup --days=7
-     * php craft brute-force-shield/cleanup -d 7
+     * php craft login-lockdown/cleanup --days=7
+     * php craft login-lockdown/cleanup -d 7
      * ```
      *
      * @return int
      */
     public function actionIndex(): int
     {
-        $this->stdout("Running Brute Force Shield cleanup...\n");
+        $this->stdout("Running Login Lockdown cleanup...\n");
 
-        $deleted = BruteForceShield::$plugin->protectionService->cleanup($this->days);
+        $deleted = LoginLockdown::$plugin->protectionService->cleanup($this->days);
 
         $this->stdout("Cleanup complete. Deleted {$deleted} records older than {$this->days} days.\n");
 

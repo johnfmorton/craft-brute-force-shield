@@ -1,5 +1,5 @@
 {
-	"name": "johnfmorton/brute-force-shield",
+	"name": "johnfmorton/login-lockdown",
 	"description": "Prevents brute force password attacks on the Craft CMS control panel by tracking failed login attempts per IP address and blocking access after a configurable threshold.",
 	"type": "craft-plugin",
 	"version": "1.0.0",
@@ -13,8 +13,8 @@
 		"login protection"
 	],
 	"support": {
-		"docs": "https://github.com/johnfmorton/brute-force-shield",
-		"issues": "https://github.com/johnfmorton/brute-force-shield/issues"
+		"docs": "https://github.com/johnfmorton/login-lockdown",
+		"issues": "https://github.com/johnfmorton/login-lockdown/issues"
 	},
 	"license": "MIT",
 	"authors": [
@@ -29,16 +29,16 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"johnfmorton\\bruteforceshield\\": "src/"
+			"johnfmorton\\loginlockdown\\": "src/"
 		}
 	},
 	"extra": {
-		"name": "Brute Force Shield",
-		"handle": "brute-force-shield",
+		"name": "Login Lockdown",
+		"handle": "login-lockdown",
 		"developer": "John F Morton",
 		"developerUrl": "https://supergeekery.com",
-		"documentationUrl": "https://github.com/johnfmorton/brute-force-shield",
-		"class": "johnfmorton\\bruteforceshield\\BruteForceShield"
+		"documentationUrl": "https://github.com/johnfmorton/login-lockdown",
+		"class": "johnfmorton\\loginlockdown\\LoginLockdown"
 	},
 	"scripts": {
 		"check-cs": "ecs check --ansi",
