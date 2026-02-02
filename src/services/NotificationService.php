@@ -71,6 +71,10 @@ class NotificationService extends Component
         ?string $username,
         string $siteName,
     ): string {
+        $settings = LoginLockdown::$plugin->getSettings();
+        $lockoutDuration = $settings->getLockoutDurationParsed();
+        $blockedUntil = date('Y-m-d H:i:s T', time() + $lockoutDuration);
+
         $message = "Login Lockdown has blocked IP address {$ipAddress} on {$siteName}.\n\n";
         $message .= "Details:\n";
         $message .= "- Failed attempts: {$attemptCount}\n";
@@ -80,6 +84,7 @@ class NotificationService extends Component
         }
 
         $message .= "- Blocked at: " . date('Y-m-d H:i:s T') . "\n";
+        $message .= "- Block expires: {$blockedUntil}\n";
 
         return $message;
     }
