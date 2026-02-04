@@ -212,6 +212,66 @@ class ProtectionService extends Component
     }
 
     /**
+     * Record an attempt from an already-blocked IP and extend the block timer
+     *
+     * Called when a blocked IP tries to log in again. This ensures continued
+     * attempts are tracked and the lockout timer resets on each new attempt.
+     *
+     * @param string $ipAddress The IP address
+     * @param string|null $username The attempted username
+     * @param string|null $userAgent The user agent
+     */
+    public function recordBlockedAttemptAndExtend(string $ipAddress, ?string $username = null, ?string $userAgent = null): void
+    {
+        $settings = LoginLockdown::$plugin->getSettings();
+
+        // Record the attempt
+        $record = new LoginAttemptRecord();
+        $record->ipAddress = $ipAddress;
+        $record->username = $username;
+        $record->userAgent = $userAgent;
+        $record->dateAttempted = (new DateTime())->format('Y-m-d H:i:s');
+        $record->save();
+
+        // Count recent attempts within the window
+        $attemptWindow = $settings->getAttemptWindowParsed();
+        $windowStart = (new DateTime())
+            ->modify("-{$attemptWindow} seconds")
+            ->format('Y-m-d H:i:s');
+
+        $attemptCount = (int)(new Query())
+            ->from(LoginAttemptRecord::tableName())
+            ->where(['ipAddress' => $ipAddress])
+            ->andWhere(['>=', 'dateAttempted', $windowStart])
+            ->count();
+
+        // Extend the block timer
+        $lockoutDuration = $settings->getLockoutDurationParsed();
+        $blockedUntil = (new DateTime())
+            ->modify("+{$lockoutDuration} seconds")
+            ->format('Y-m-d H:i:s');
+
+        $now = (new DateTime())->format('Y-m-d H:i:s');
+
+        /** @var BlockedIpRecord|null $existing */
+        $existing = BlockedIpRecord::find()
+            ->where(['ipAddress' => $ipAddress])
+            ->andWhere(['>', 'blockedUntil', $now])
+            ->one();
+
+        if ($existing) {
+            $existing->attemptCount = $attemptCount;
+            $existing->blockedUntil = $blockedUntil;
+            $existing->save();
+        }
+
+        Craft::info(
+            "Login Lockdown: Recorded blocked attempt from {$ipAddress}, extended block (attempts: {$attemptCount})",
+            __METHOD__
+        );
+    }
+
+    /**
      * Check if an IP is currently blocked
      *
      * @param string $ipAddress The IP address to check

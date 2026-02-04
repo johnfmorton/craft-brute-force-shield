@@ -213,6 +213,19 @@ class LoginLockdown extends Plugin
                     return;
                 }
 
+                // Record this attempt and extend the block timer
+                $username = $request->getBodyParam('loginName');
+                $userAgent = $request->getUserAgent();
+
+                try {
+                    $this->protectionService->recordBlockedAttemptAndExtend($ipAddress, $username, $userAgent);
+                } catch (\Throwable $e) {
+                    Craft::error(
+                        "Login Lockdown: Error recording blocked attempt: " . $e->getMessage(),
+                        __METHOD__
+                    );
+                }
+
                 // Block login POST attempts - Craft's login form uses AJAX,
                 // so sendBlockedResponse() will return JSON that displays as an error
                 $this->sendBlockedResponse();
